@@ -1,1 +1,2 @@
-tinder-cli.py
+#!/bin/bash
+tinder-cli.py "$@"
