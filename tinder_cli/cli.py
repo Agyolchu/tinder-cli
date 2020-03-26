@@ -98,6 +98,11 @@ class TinderCLI(object):
         return yaml.dump(resp.json())
 
     @staticmethod
+    def get_cli_cmd(cmd=False):
+        cmd = input(f'choose command [{", ".join(TinderCLI.commands)}]: ')
+        return cmd if cmd in TinderCLI.commands else exit(f'invalid action - {cmd}')
+
+    @staticmethod
     def get_tinder_token(token=False):
         return input('input your tinder token: ').strip() if not token else token
 
