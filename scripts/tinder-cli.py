@@ -17,14 +17,16 @@ def main():
     cli = TinderCLI(tinder_token)
     requests.urllib3.disable_warnings()
 
-    result = cli.run(args.cmd, tinder_id=args.id)
+    cmd = cli.get_cli_cmd(args.cmd)
+    result = cli.run(cmd, tinder_id=args.id)
+
     print(result)
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('cmd', choices=TinderCLI.commands,
+    parser.add_argument('--cmd', choices=TinderCLI.commands, default=False,
                         metavar='COMMAND', help=', '.join(TinderCLI.commands))
     parser.add_argument('--token', action='store', type=str, default=False,
                         metavar='TOKEN', help='tinder API token')
