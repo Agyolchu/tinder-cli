@@ -32,6 +32,7 @@ if __name__ == '__main__':
             'requests',
             'pyyaml'
         ],
+        python_requires='>=3.6',
         include_package_data=True,
         scripts=[
             'scripts/tinder-cli',
