@@ -24,7 +24,7 @@ class TinderClient(object):
 
     @classmethod
     def get_recommendations(cls, session: requests.Session, **kwargs) -> requests.Response:
-        return session.get(cls.API_BASE_URL + f'/user/recs', **kwargs)
+        return session.get(cls.API_BASE_URL + f'/v2/recs/core', **kwargs)
 
     @classmethod
     def get_user(cls, session: requests.Session, user_id: str, **kwargs) -> requests.Response:
