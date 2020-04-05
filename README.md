@@ -18,12 +18,20 @@ Or you can use the following library:
 
 [https://github.com/meister245/tinder-token](https://github.com/meister245/tinder-token#cli-script)
 
-### Usage
+## CLI Usage
 
-Run the following command to use the CLI
+The CLI will prompt you for your Tinder API token on first usage, which will be stored in `~/.tinder-cli`
 
-    python .scripts//tinder-cli.py
+Usage information
 
-For detailed usage info
+    tinder-cli --help
 
-    ./tinder-cli --help
+Available CLI commands
+
+    tinder-cli profile
+    tinder-cli teasers
+
+    tinder-cli info --id <tinder ID>
+    tinder-cli like --id <tinder ID>
+    tinder-cli superlike --id <tinder ID>
+    tinder-cli pass --id <tinder ID>
