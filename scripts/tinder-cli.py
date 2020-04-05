@@ -1,35 +1,49 @@
 #!/usr/bin/env python3
 
-import re
-import sys
-import getpass
 import argparse
+import getpass
+import re
+import os
+import os.path
+import sys
 
 import requests
 
-from tinder_cli.cli import TinderCLI
+from tinder_cli import cli
 
 
 def main():
     args = parse_args()
-    tinder_token = TinderCLI.get_tinder_token(args.token)
+    file_path = os.path.expanduser('~') + '/.tinder-cli'
 
-    cli = TinderCLI(tinder_token)
+    if not os.path.isfile(file_path):
+        tinder_token = input('tinder token: ')
+
+        with open(file_path, 'w') as f:
+            f.write(tinder_token)
+
+    with open(file_path, 'r') as f:
+        tinder_token = f.read().strip()
+
     requests.urllib3.disable_warnings()
+    session = cli.client.get_session(tinder_token)
 
-    cmd = cli.get_cli_cmd(args.cmd)
-    result = cli.run(cmd, tinder_id=args.id)
+    try:
+        result = getattr(cli, 'cmd_{}'.format(args.cmd))(
+            session, tinder_id=args.id
+        )
+
+    except requests.exceptions.HTTPError as e:
+        result = 'error occured - {}'.format(str(e))
+        os.remove(file_path)
 
     print(result)
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-
-    parser.add_argument('--cmd', choices=TinderCLI.commands, default=False,
-                        metavar='COMMAND', help=', '.join(TinderCLI.commands))
-    parser.add_argument('--token', action='store', type=str, default=False,
-                        metavar='TOKEN', help='tinder API token')
+    parser.add_argument('cmd', choices=cli.COMMANDS,
+                        metavar='COMMAND', help=', '.join(cli.COMMANDS))
     parser.add_argument('--id', action='store', type=str, default=False,
                         metavar='TINDER ID', help='tinder profile ID')
 

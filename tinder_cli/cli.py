@@ -5,38 +5,18 @@ from tinder_cli.client import TinderClient
 
 class TinderCLI(object):
     client = TinderClient()
-    commands = ('like', 'superlike', 'pass', 'info', 'meta', 'teasers', 'profile')
-    profile_keys = ('bio', 'birth_date', 'gender', 'distance_mi', 'jobs', 'name', 'photos', 'instagram', 'schools')
 
-    def __init__(self, tinder_token):
-        self.session = self.client.get_session(tinder_token)
+    COMMANDS = ('like', 'superlike', 'pass', 'info', 'teasers', 'profile')
+    PROFILE_KEYS = ('bio', 'birth_date', 'gender', 'distance_mi', 'jobs', 'name', 'photos', 'instagram', 'schools')
 
-    def run(self, cmd, tinder_id):
-        if cmd == 'info':
-            return self.cmd_info(tinder_id)
+    @classmethod
+    def cmd_info(cls, session, **kwargs):
+        tinder_id = kwargs['tinder_id'] if kwargs.get('tinder_id', False) else input('tinder ID: ')
 
-        elif cmd == 'like':
-            return self.cmd_like(tinder_id)
-
-        elif cmd == 'pass':
-            return self.cmd_pass(tinder_id)
-
-        elif cmd == 'superlike':
-            return self.cmd_superlike(tinder_id)
-
-        elif cmd == 'profile':
-            return self.cmd_profile()
-
-        elif cmd == 'teasers':
-            return self.cmd_teasers()
-
-    def cmd_info(self, tinder_id):
-        tinder_id = self.get_tinder_id(tinder_id)
-
-        resp = self.client.get_user(self.session, tinder_id)
+        resp = cls.client.get_user(session, tinder_id)
         resp.raise_for_status()
 
-        data = {k: v for k, v in resp.json().get('results', {}).items() if k in self.profile_keys}
+        data = {k: v for k, v in resp.json().get('results', {}).items() if k in cls.PROFILE_KEYS}
 
         data.update({
             'birth_year': int(data.pop('birth_date')[:4]),
@@ -55,14 +35,16 @@ class TinderCLI(object):
 
         return yaml.dump(data)
 
-    def cmd_profile(self):
-        resp = self.client.get_profile(self.session)
+    @classmethod
+    def cmd_profile(cls, session, **kwargs):
+        resp = cls.client.get_profile(session)
         resp.raise_for_status()
 
         return yaml.dump(resp.json())
 
-    def cmd_teasers(self):
-        resp = self.client.get_teasers(self.session)
+    @classmethod
+    def cmd_teasers(cls, session, **kwargs):
+        resp = cls.client.get_teasers(session)
         resp.raise_for_status()
 
         profiles = []
@@ -73,39 +55,29 @@ class TinderCLI(object):
 
         return yaml.dump(profiles)
 
-    def cmd_like(self, tinder_id):
-        tinder_id = self.get_tinder_id(tinder_id)
+    @classmethod
+    def cmd_like(cls, session, **kwargs):
+        tinder_id = kwargs['tinder_id'] if kwargs.get('tinder_id', False) else input('tinder ID: ')
 
-        resp = self.client.like_user(self.session, tinder_id)
+        resp = cls.client.like_user(session, tinder_id)
         resp.raise_for_status()
 
         return yaml.dump(resp.json())
 
-    def cmd_superlike(self, tinder_id):
-        tinder_id = self.get_tinder_id(tinder_id)
+    @classmethod
+    def cmd_superlike(cls, session, **kwargs):
+        tinder_id = kwargs['tinder_id'] if kwargs.get('tinder_id', False) else input('tinder ID: ')
 
-        resp = self.client.superlike_user(self.session, tinder_id)
+        resp = cls.client.superlike_user(session, tinder_id)
         resp.raise_for_status()
 
         return yaml.dump(resp.json())
 
-    def cmd_pass(self, tinder_id):
-        tinder_id = self.get_tinder_id(tinder_id)
+    @classmethod
+    def cmd_pass(cls, session, **kwargs):
+        tinder_id = kwargs['tinder_id'] if kwargs.get('tinder_id', False) else input('tinder ID: ')
 
-        resp = self.client.pass_user(self.session, tinder_id)
+        resp = cls.client.pass_user(session, tinder_id)
         resp.raise_for_status()
 
         return yaml.dump(resp.json())
-
-    @staticmethod
-    def get_cli_cmd(cmd=False):
-        cmd = input(f'choose command [{", ".join(TinderCLI.commands)}]: ')
-        return cmd if cmd in TinderCLI.commands else exit(f'invalid action - {cmd}')
-
-    @staticmethod
-    def get_tinder_token(token=False):
-        return input('input your tinder token: ').strip() if not token else token
-
-    @staticmethod
-    def get_tinder_id(tinder_id=False):
-        return input('input tinder id: ').strip() if not tinder_id else tinder_id
